@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Parallax from './Parallax';
 
 const API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -35,17 +36,20 @@ export default function FleetHighlights(){
 
   return (
     <section className="relative bg-gradient-to-b from-black via-neutral-950 to-black text-white py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Parallax strength={16} axis="both" className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(245,158,11,0.06),transparent_40%),radial-gradient(circle_at_80%_50%,rgba(255,255,255,0.05),transparent_40%)]"/>
+      </Parallax>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between">
           <h2 className="text-2xl sm:text-3xl font-semibold">Fleet Highlights</h2>
-          <a href="/fleet" className="text-amber-400 hover:text-amber-300">View all</a>
+          <a href="/fleet" className="text-amber-400 hover:text-amber-300" data-cursor="view">View all</a>
         </div>
         {loading ? (
           <div className="mt-8 text-neutral-300">Loading…</div>
         ) : (
           <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((car, idx)=> (
-              <motion.a key={idx} href={`/vehicle/${car.slug}`} whileHover={{y:-4}} className="group bg-white/[0.04] border border-white/10 rounded-xl overflow-hidden">
+              <motion.a key={idx} href={`/vehicle/${car.slug}`} whileHover={{y:-4}} className="group bg-white/[0.04] border border-white/10 rounded-xl overflow-hidden" data-cursor="view">
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <img src={(car.thumbnails && car.thumbnails[0]) || (car.gallery && car.gallery[0])} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"/>
                   <span className={classNames("absolute top-3 left-3 text-xs px-2 py-1 rounded-md", car.status==='available' ? 'bg-emerald-500 text-black':'bg-neutral-700 text-white')}>{car.status==='available'?'Available':'Booked'}</span>

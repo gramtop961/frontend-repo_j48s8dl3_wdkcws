@@ -6,14 +6,24 @@ export default function CustomCursor(){
   const ringRef = useRef(null);
   const [hidden, setHidden] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const [variant, setVariant] = useState('default'); // default | accent | view
+  const [variant, setVariant] = useState('default'); // default | accent | view | drag | book
+
+  const isReduced = () => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    return mq.matches || document.documentElement.classList.contains('reduced-motion');
+  };
 
   useEffect(()=>{
+    const handleRMChange = () => setReduced(isReduced());
+    handleRMChange();
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updateRM = () => setReduced(mq.matches);
-    updateRM();
-    mq.addEventListener?.('change', updateRM);
-    return () => mq.removeEventListener?.('change', updateRM);
+    mq.addEventListener?.('change', handleRMChange);
+    const observer = new MutationObserver(handleRMChange);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => {
+      mq.removeEventListener?.('change', handleRMChange);
+      observer.disconnect();
+    };
   },[]);
 
   useEffect(()=>{
@@ -42,31 +52,25 @@ export default function CustomCursor(){
     const onEnter = ()=> setHidden(false);
     const onLeave = ()=> setHidden(true);
 
-    const setAccent = ()=> setVariant('accent');
-    const setDefault = ()=> setVariant('default');
-    const setView = ()=> setVariant('view');
+    const setVariantFrom = (type) => {
+      if(type === 'view' || type === 'drag' || type === 'book') setVariant(type);
+      else setVariant('accent');
+    };
+
+    const onOver = (e) => {
+      const target = e.target.closest('a,button,[role="button"],[data-cursor],input,select,textarea');
+      if(!target) return;
+      const type = target.getAttribute('data-cursor') || (target.tagName === 'A' ? 'view' : 'accent');
+      setVariantFrom(type);
+    };
+
+    const onOut = () => setVariant('default');
 
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseenter', onEnter);
     window.addEventListener('mouseleave', onLeave);
-
-    // Hover states for interactive elements
-    const selectors = ['a','button','[role="button"]','input','select','textarea','[data-cursor]','.card-hover'];
-    const enterHandlers = [];
-    const leaveHandlers = [];
-    selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        const type = el.getAttribute('data-cursor') || (el.tagName === 'A' ? 'view' : 'accent');
-        const enter = () => {
-          if(type === 'view') setView(); else setAccent();
-        };
-        const leave = () => setDefault();
-        el.addEventListener('mouseenter', enter);
-        el.addEventListener('mouseleave', leave);
-        enterHandlers.push([el, enter]);
-        leaveHandlers.push([el, leave]);
-      });
-    });
+    document.addEventListener('mouseover', onOver);
+    document.addEventListener('mouseout', onOut);
 
     loop();
 
@@ -75,12 +79,14 @@ export default function CustomCursor(){
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseenter', onEnter);
       window.removeEventListener('mouseleave', onLeave);
-      enterHandlers.forEach(([el, fn])=> el.removeEventListener('mouseenter', fn));
-      leaveHandlers.forEach(([el, fn])=> el.removeEventListener('mouseleave', fn));
+      document.removeEventListener('mouseover', onOver);
+      document.removeEventListener('mouseout', onOut);
     };
   },[reduced]);
 
   if(reduced) return null;
+
+  const label = variant === 'view' ? 'VIEW' : variant === 'drag' ? 'DRAG' : variant === 'book' ? 'BOOK' : '';
 
   return (
     <>
@@ -93,7 +99,7 @@ export default function CustomCursor(){
           } flex items-center justify-center text-[10px] font-semibold text-white tracking-wider`}
           style={{ transform: 'translate(-50%, -50%)' }}
         >
-          {variant==='view' ? 'VIEW' : ''}
+          {label}
         </div>
       </div>
       <div ref={dotRef} aria-hidden className={`pointer-events-none fixed z-[101] left-0 top-0 will-change-transform transition-[opacity] duration-150 ${hidden?'opacity-0':'opacity-100'}`} style={{ transform: 'translate3d(-100px,-100px,0)' }}>

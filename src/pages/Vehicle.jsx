@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import Parallax from '../components/Parallax';
 
 const API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -9,6 +10,7 @@ export default function Vehicle(){
   const [days, setDays] = useState(3);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const mainImgRef = useRef(null);
 
   useEffect(()=>{
     const load = async () => {
@@ -42,21 +44,32 @@ export default function Vehicle(){
     return t;
   },[car, days]);
 
+  const setMain = (src) => {
+    if(mainImgRef.current){
+      mainImgRef.current.src = src;
+    }
+  };
+
   if(loading) return <main className="text-white pt-24 min-h-screen bg-black"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">Chargement…</div></main>;
   if(error) return <main className="text-white pt-24 min-h-screen bg-black"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">{error}</div></main>;
   if(!car) return null;
+
+  const thumbs = [...(car.gallery||[]), ...(car.thumbnails||[])];
 
   return (
     <main className="bg-black text-white pt-24 min-h-screen">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3">
-            <div className="aspect-video rounded-xl overflow-hidden border border-white/10 bg-white/5">
-              <img src={(car.gallery && car.gallery[0]) || (car.thumbnails && car.thumbnails[0])} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover"/>
-            </div>
+            <Parallax strength={10} axis="both" className="aspect-video rounded-xl overflow-hidden border border-white/10 bg-white/5">
+              <img ref={mainImgRef} src={(car.gallery && car.gallery[0]) || (car.thumbnails && car.thumbnails[0])} alt={`${car.make} ${car.model}`} className="w-full h-full object-cover"/>
+            </Parallax>
             <div className="mt-3 grid grid-cols-4 gap-3">
-              {[...(car.gallery||[]), ...(car.thumbnails||[])].slice(0,8).map((img,i)=>(
-                <img key={i} src={img} alt="thumbnail" className="aspect-video object-cover rounded-md border border-white/10" />
+              {thumbs.slice(0,8).map((img,i)=>(
+                <button key={i} data-cursor="view" onClick={()=>setMain(img)} className="group relative">
+                  <img src={img} alt="thumbnail" className="aspect-video object-cover rounded-md border border-white/10 group-hover:border-amber-400/40 transition" />
+                  <span className="pointer-events-none absolute inset-0 rounded-md shadow-[inset_0_0_0_1px_rgba(245,158,11,0.2)] opacity-0 group-hover:opacity-100 transition" />
+                </button>
               ))}
             </div>
           </div>
@@ -84,7 +97,7 @@ export default function Vehicle(){
               <input type="range" min={1} max={14} value={days} onChange={e=>setDays(Number(e.target.value))} className="w-full mt-4"/>
               <div className="text-xs text-neutral-400">{days} jour(s) • Taxes & dépôt s'appliquent</div>
               <div className="mt-4 flex gap-3">
-                <a href={`/contact?vehicle=${car.slug}`} className="bg-amber-500 text-black font-semibold px-5 py-3 rounded-md">Réserver</a>
+                <a data-cursor="book" href={`/contact?vehicle=${car.slug}`} className="bg-amber-500 text-black font-semibold px-5 py-3 rounded-md">Réserver</a>
                 <a href="tel:+13235550123" className="border border-white/20 px-5 py-3 rounded-md text-neutral-200">Nous appeler</a>
               </div>
             </div>

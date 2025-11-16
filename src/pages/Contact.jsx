@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Parallax from '../components/Parallax';
 
 const API = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
@@ -38,7 +39,7 @@ export default function Contact(){
   return (
     <main className="bg-black text-white pt-24 min-h-screen">
       <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-semibold">Book Your Car</h1>
+        <Parallax strength={10} axis="y"><h1 className="text-3xl font-semibold">Book Your Car</h1></Parallax>
         <p className="mt-2 text-neutral-300">Short form. We respond instantly via text/WhatsApp.</p>
         <form onSubmit={submit} className="mt-6 grid grid-cols-1 gap-4">
           <input className="bg-white/5 border border-white/10 rounded-md px-4 py-3" placeholder="Vehicle (optional)" name="vehicle_slug" value={form.vehicle_slug} onChange={onChange}/>
@@ -54,8 +55,8 @@ export default function Contact(){
           <input className="bg-white/5 border border-white/10 rounded-md px-4 py-3" placeholder="Pickup/Delivery location" name="delivery" value={form.delivery} onChange={onChange}/>
           <textarea rows={4} className="bg-white/5 border border-white/10 rounded-md px-4 py-3" placeholder="Notes" name="notes" value={form.notes} onChange={onChange}/>
           <div className="flex gap-3">
-            <button disabled={status==='loading'} className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 rounded-md">{status==='loading'?'Sending...':'Send Request'}</button>
-            <a href="https://wa.me/13235550123" target="_blank" className="bg-white/10 hover:bg-white/15 border border-white/20 px-6 py-3 rounded-md">WhatsApp</a>
+            <button disabled={status==='loading'} className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-6 py-3 rounded-md" data-cursor="book">{status==='loading'?'Sending...':'Send Request'}</button>
+            <a href="https://wa.me/13235550123" target="_blank" className="bg-white/10 hover:bg-white/15 border border-white/20 px-6 py-3 rounded-md" data-cursor="accent">WhatsApp</a>
           </div>
           {status==='success' && <div className="text-emerald-400">We received your request. We’ll contact you ASAP.</div>}
           {status==='error' && <div className="text-red-400">Something went wrong. Please try again.</div>}
