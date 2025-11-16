@@ -1,28 +1,36 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import Fleet from './pages/Fleet';
+import Vehicle from './pages/Vehicle';
+import Static from './pages/Static';
+import Contact from './pages/Contact';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function App(){
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-black text-white">
+        <Navbar/>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/fleet" element={<Fleet/>} />
+          <Route path="/vehicle/:slug" element={<Vehicle/>} />
+          <Route path="/why-us" element={<Static title="Why Us"> 
+            <p>Concierge 5★, studio-friendly logistics, and intelligent pricing 20–30% lower than comparable offers thanks to our control-without-ownership model. Commercial insurance, GPS tracking, and professional processes mean zero stress.</p>
+          </Static>} />
+          <Route path="/investors" element={<Static title="For Owners & Investors"> 
+            <p>Partner with us to generate income from your vehicle without losing control. We handle verification, bookings, delivery, protection, and payouts. Transparent, insured, and data-driven.</p>
+          </Static>} />
+          <Route path="/reviews" element={<Static title="Reviews & Partners"> 
+            <p>Trusted by creators, studios, and executives. UGC and short-form testimonials coming soon.</p>
+          </Static>} />
+          <Route path="/contact" element={<Contact/>} />
+        </Routes>
+        <Footer/>
       </div>
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
